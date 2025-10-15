@@ -1,0 +1,8 @@
+**/__pycache__/
+/.vscode
+/.idea
+/.venv
+
+/datasets
+/wandb
+**/saved_models

@@ -1,0 +1,59 @@
+# convenience parameters
+name: "walker diayn 0.9*9 5 seed1"
+save_dir: "./agents/breeze/saved_models"
+project: "breeze-final"
+save: False
+
+# training/eval
+batch_size: 512
+max_buffer_episodes: 5000
+eval_frequency: 10000  # how often to evaluate the agent in learning steps
+eval_rollouts: 10  # how many rollouts to average over when evaluating
+
+# general parameters
+z_mix_ratio: 0.5
+tau: 0.01 # soft update parameter
+
+# forward-backward config
+orthonormalisation_coefficient: 10
+
+forward_config:
+  hidden_dimension: 256
+  critic_learning_rate: 0.0001
+  preprocessor:
+    hidden_dimension: 1024
+    hidden_layers: 2
+    output_dimension: 512
+    activation: "relu"
+
+backward_config:
+  hidden_dimension: 2048
+  hidden_layers: 2
+  learning_rate_coefficient: 1
+
+v_config:
+  hidden_dimension: 512
+  hidden_layers: 2
+  activation: "relu"
+  learning_rate: 0.0003
+
+# actor
+actor_config:
+  hidden_dimension: 1024
+  learning_rate: 0.0001
+  beta: 'vp'  # linear cosine sigmoid vp
+  ts: 5 # number of timesteps for the diffusion actor
+  ema: 0.001
+  time_embeding: 'learned' # fixed learned
+
+  std_dev_schedule: null
+  eval_std: null
+  std_dev_eval: null
+
+code_option_params:
+  ktrain: 9
+  keval: 64
+  guide_weight: 0.05
+  expectile: 0.99
+  future_weight: 0.9
+  freg_coef: 0.001
