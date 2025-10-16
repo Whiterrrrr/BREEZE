@@ -8,7 +8,6 @@ import numpy as np
 from utils import BASE_DIR
 from tqdm import tqdm
 from loguru import logger
-import subprocess
 
 # Overwrite default config using argparse
 parser = ArgumentParser()
@@ -20,8 +19,6 @@ domain_algorithm_pair = [args.domain_algorithm_pair.rsplit("_", 1)]
 print(domain_algorithm_pair)
 # download from exorl bucket
 for domain, algorithm in domain_algorithm_pair:
-
-    subprocess.call(["bash", "download.sh", domain, algorithm])
 
     data_dir = BASE_DIR / f"datasets/{domain}/{algorithm}/buffer"
     video_dir = BASE_DIR / f"datasets/{domain}/{algorithm}/video"

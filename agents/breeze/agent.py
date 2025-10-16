@@ -52,7 +52,7 @@ class BREEZE(FB):
         self._z_dimension = z_dimension
         self.std_dev_schedule = actor_config["std_dev_schedule"]
         self.off_diagonal = ~torch.eye(batch_size, device=device, dtype=torch.bool)  # future states =/= s_{t+1}
-        self.future_weight = code_options_parameters['future_weight']
+        self.future_weight = 1 - code_options_parameters['rho_a']
         self.guide_weight = code_options_parameters['guide_weight']
         self.expectile = code_options_parameters["expectile"]
         self.freg_coef = code_options_parameters['freg_coef']

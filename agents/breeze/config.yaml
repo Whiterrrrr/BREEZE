@@ -1,5 +1,5 @@
 # convenience parameters
-name: "walker diayn 0.9*9 5 seed1"
+name: "breeze"
 save_dir: "./agents/breeze/saved_models"
 project: "breeze-final"
 save: False
@@ -42,7 +42,7 @@ actor_config:
   hidden_dimension: 1024
   learning_rate: 0.0001
   beta: 'vp'  # linear cosine sigmoid vp
-  ts: 5 # number of timesteps for the diffusion actor
+  ts: 10 # number of timesteps for the diffusion actor
   ema: 0.001
   time_embeding: 'learned' # fixed learned
 
@@ -51,9 +51,9 @@ actor_config:
   std_dev_eval: null
 
 code_option_params:
-  ktrain: 9
+  rho_a: 0
+  ktrain: 1
   keval: 64
   guide_weight: 0.05
   expectile: 0.99
-  future_weight: 0.9
   freg_coef: 0.001
