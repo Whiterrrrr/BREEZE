@@ -13,7 +13,7 @@
 - [Acknowledgements](#acknowledgements)
 
 ## Overview
-**BREEZE** is an upgraded FB-based framework that simultaneously enhances learning stability, policy extraction capability, and representation learning quality.
+**BREEZE** is an upgraded FB-based framework that simultaneously enhances offline learning stability, policy extraction capability, and representation learning quality.
 
 - BREEZE introduces behavioral regularization in zero-shot RL policy learning, transforming policy optimization into a stable in-sample learning paradigm.
 - BREEZE extracts the policy using a task-conditioned diffusion model, enabling the generation of high-quality and multimodal action distributions in zero-shot RL settings.
@@ -26,7 +26,7 @@ BREEZE achieves the best or near-best returns with faster convergence and enhanc
 </div>
 BREEZE within 400k steps can match or exceed baselines trained for 1M steps.
 <div align="center">
-<image src="img/convergence_speed.png" width=80%>
+<image src="img/performance.png" width=80%>
 </div>
 
 ## Environment Setup
@@ -75,16 +75,17 @@ usage: main_offline.py <algorithm> <domain_name> <exploration_algorithm> \
 # BREEZE on Quadruped with RND exploration data
 python main_offline.py breeze quadruped rnd \
   --eval_tasks stand run walk jump \
-  --seed 42 --learning_steps 400000
+  --seed 42 --learning_steps 1000000
 ```
 
 Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are stored in `agents/<algo>/config.yaml`. Override any value via CLI flags or by editing the YAML.
 
 ### Reproducing the Paper
-We provide the domain-specific hyperparameters used in our experiments can be found in [domain_specific_hyp.md](docs/domain_specific_hyp.md) to reproduce our result.
+We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md) to reproduce our result.
 
 
 ## Acknowledgements
+We thank all the contributions of prior studies:
 - This implementation is based on the [Zero-Shot Reinforcement Learning from Low Quality Data](https://enjeeneer.io/projects/zero-shot-rl/) codebase.
 
 - The implementation of Diffusion model is based on [IDQL](https://arxiv.org/pdf/2304.10573)

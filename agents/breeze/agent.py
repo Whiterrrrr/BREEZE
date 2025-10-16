@@ -99,10 +99,8 @@ class BREEZE(FB):
             observation: observation array of shape [observation_length]
             task: task array of shape [z_dimension]
             step: current step in env
-            sample: whether to sample action from actor distribution
         Returns:
             action: action array of shape [action_length]
-            std_dev: current actor standard deviation
         """
 
         observation = torch.as_tensor(
@@ -126,9 +124,9 @@ class BREEZE(FB):
 
     def update(self, batch: Batch, step: int) -> Dict[str, float]:
         """
-        Updates agent's networks given a batch_size sample from the replay buffer.
+        Updates agent's networks given a batch_size sample from the dataset.
         Args:
-            batch: memory buffer containing transitions
+            batch: transition data batch
             step: no. of steps taken in the environment
         Returns:
             metrics: dictionary of metrics for logging
@@ -238,20 +236,15 @@ class BREEZE(FB):
         zs: torch.Tensor,  # [batch_size, z_dimension]
     ) -> Tuple[int, Dict[str, float]]:
         """
-        Loss computation common to FB and all child classes. All equation references
-        are to the appendix of the FB paper (Touati et. al (2022)). TODO modify these references if paper published
         The loss contains several components:
-            1. Forward-backward representation loss: a Bellman update on the successor
-                measure (equation 24, Appendix B)
-            2. Orthonormalisation loss: constrains backward function such that the
-                measure of state s from state s = 1 (equation 26, Appendix B)
+            1. Forward-backward representation loss: a Bellman update on the successor measure
+            2. Orthonormalisation loss: constrains backward representation with orthogonality
             3. Regularization loss: additional loss term to regularize the representation
-            Note: Q loss (Equation 9) is not implemented.
         Args:
             observations: observation tensor of shape [batch_size, observation_length]
             actions: action tensor of shape [batch_size, action_length]
-            next_observations: next observation tensor of
-                                shape [batch_size, observation_length]
+            next_observations: next observation tensor of shape [batch_size, observation_length]
+            next_actions: next action tensor of shape [batch_size, action_length]
             discounts: discount tensor of shape [batch_size, 1]
             zs: policy tensor of shape [batch_size, z_dimension]
             step: current training step
@@ -267,7 +260,7 @@ class BREEZE(FB):
                 input_observation, input_zs, num=self.ktrain, batch_input=True, from_target=True
             ).squeeze()
 
-            # Rejection Sampling: Select best actions using Q-values
+            # Rejection Sampling: Select best next actions using Q-values
             if self.ktrain > 1:
                 Q_sample = self.predict_q(
                     observation=input_observation.unsqueeze(1).repeat(1, self.ktrain, 1).view(-1, input_observation.shape[-1]),
@@ -424,7 +417,6 @@ class BREEZE(FB):
         Compute all target matrices
         Args:
             next_observations: tensor of shape [N, observation_length]
-            observations_rand: tensor of shape [N, observation_length]
             zs: tensor of shape [N, z_dimension]
             next_actions: tensor of shape [N, action_length]
             discounts: tensor of shape [N]
