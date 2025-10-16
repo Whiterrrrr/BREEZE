@@ -101,7 +101,13 @@ config["device"] = torch.device(
 set_seed_everywhere(config["seed"])
 
 # setup dataset
-dataset_path = '/data/zeroshot_dataset/datasets/' + config["domain_name"] + '/' + config["exploration_algorithm"] + "/dataset.npz"
+dataset_path = (
+    BASE_DIR
+    / "datasets"
+    / config["domain_name"]
+    / config["exploration_algorithm"]
+    / "dataset.npz"
+)
 reward_constructor = RewardFunctionConstructor(
     domain_name=config["domain_name"],
     task_names=config["eval_tasks"],
