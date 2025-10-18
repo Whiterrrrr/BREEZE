@@ -1,25 +1,28 @@
-<div align="center">
-  <h1>Behavior-regularized zero-shot RL with Expressivity Enhancement (BREEZE)</h1>
-  <h3><em>Towards Robust Zero-shot Reinforcement Learning (NeurIPS 2025)</em></h3>
+
+# Behavior-regularized zero-shot RL with Expressivity Enhancement (BREEZE)</h1>
+## Towards Robust Zero-shot Reinforcement Learning (NeurIPS 2025)
+<a href="https://github.com/Whiterrrrr/BREEZE/blob/main/LICENSE"><img alt="License: MIT" src="https://black.readthedocs.io/en/stable/_static/license.svg"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+ [![Paper](https://img.shields.io/badge/paper-arxiv-B31B1B.svg)](https://arxiv.org/)
   
-[Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)
 
-</div>
+The is the official codebase for [Towards Robust Reinforcement Learning]() from [Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
+*Equal contribution
 
-## Table of Contents
+### Content
 - [Overview](#overview)
-- [Environment Setup](#environment-setup)
+- [Setup](#setup)
 - [Running Experiments](#running-experiments)
 - [Acknowledgements](#acknowledgements)
 
 ## Overview
-**BREEZE** is an upgraded FB-based framework that simultaneously enhances offline learning stability, policy extraction capability, and representation learning quality.
+**BREEZE** is an FB-based framework that simultaneously enhances learning stability, policy extraction capability, and representation learning quality, through **three key designs**:
 
-- BREEZE introduces behavioral regularization in zero-shot RL policy learning, transforming policy optimization into a stable in-sample learning paradigm.
-- BREEZE extracts the policy using a task-conditioned diffusion model, enabling the generation of high-quality and multimodal action distributions in zero-shot RL settings.
-- BREEZE employs expressive attention-based architectures for representation modeling to capture the complex relationships between environmental dynamics.
+- **Behavioral regularization** in zero-shot RL policy learning, transforming policy optimization into a stable in-sample learning paradigm.
+- **Task-conditioned diffusion model policy extraction**, enabling the generation of high-quality and multimodal action distributions in zero-shot RL settings.
+- **Attention-based architectures** for representation modeling to capture the complex relationships between environmental dynamics.
 
-### Performance Showcase
+### Performance
 BREEZE achieves the best or near-best returns with faster convergence and enhanced stability. 
 <div align="center">
 <image src="img/curves_quadruped_rnd.png" width=100%>
@@ -29,27 +32,45 @@ BREEZE within 400k steps can match or exceed baselines trained for 1M steps.
 <image src="img/performance.png" width=80%>
 </div>
 
-## Environment Setup
+## Setup
 ### Requirements
 * Python 3.10
+* [Mujoco](https://mujoco.org/) - required by the DM Control suite. Note: While our experiments used separate MuJoCo binaries, the latest mujoco pip package now includes them.
+* [Wandb](https://wandb.ai/site/) - for experiment tracking. Set `WANDB_API_KEY` before launching experiments or pass `--wandb_logging False`.
 
+Install dependencies
 ```bash
 conda create -n breeze python=3.10
 conda activate breeze
 pip install -r requirements.txt
 ```
 
-### Additional Dependencies
-- The DM Control suite requires [Mujoco](https://mujoco.org/).
-- Weights & Biases logging is enabled by default; set `WANDB_API_KEY` before launching experiments or pass `--wandb_logging False`.
-
 ### Data Preparation
-All experiments rely on offline datasets released with ExORL. This repository includes scripts to download and reformat those datasets.
+All experiments rely on offline datasets from [ExORL](https://github.com/denisyarats/exorl/tree/main).
+Our repository includes a script to automatically download and reformat the datasets for the tasks and algorithms below.
 
 **ExORL Download & Reformat**
 ```bash
 bash data_prepare.sh
 ```
+
+**Domains and tasks**
+
+| **Domain** | **Eval Tasks**                                                              | **Dimensionality** | **Type**      | **Reward** | **Command Line Argument** |
+|--------------|-----------------------------------------------------------------------------|--------------------|---------------|-----------|---------------------------|
+| Walker | `stand` `walk` `run` `flip`                                                 | Low                | Locomotion         | Dense     | `walker`                  |
+| Quadruped | `stand` `roll` `roll_fast` `jump` `escape`                                  | High               | Locomotion         | Dense     | `quadruped`               |
+| Jaco | `reach_top_left` `reach_top_right` `reach_bottom_left` `reach_bottom_right` | High               | Goal-reaching      | Sparse    | `jaco`                     |
+
+ **Dataset collecting algorithms**
+
+| **Dataset Collecting Algorithm**                                                                     | **Command Line Argument** |
+|------------------------------------------------------------------------------------------------------|---------------------------|
+ | [Random Network Distillation (RND)](https://arxiv.org/abs/1810.12894)                                | `rnd`                     |
+ | [Diversity is All You Need (DIAYN)](https://arxiv.org/abs/1802.06070)                                | `diayn`                   |
+ | [Active Pretraining with Successor Features (APS)](https://arxiv.org/abs/2108.13956)                 | `aps`                     |
+ | [Reinforcement Learning with Prototypical Representations (PROTO)](https://arxiv.org/abs/2102.11271) | `proto`                   |
+
 
 ### Repository Structure
 We provide the repository structure in [repository_structure.md](docs/repository_structure.md).
@@ -65,12 +86,12 @@ usage: main_offline.py <algorithm> <domain_name> <exploration_algorithm> \
                        [--wandb_logging {True,False}]
 ```
 
-- `algorithm`: one of `breeze`, `fb`, `cfb`, `vcfb`, `mcfb`, `cql`, `sac`, `td3`, `sf-lap`, `sf-hilp`.
+- `algorithm`: one of `breeze`, `fb`, `cfb`, `vcfb`, `mcfb`, `cql`, `sac`, `td3`, `sf-lap`, `sf-hilp`(see table below).
 - `domain_name`: DMC domain (`walker`, `quadruped`, `jaco`, `point_mass_maze`, ...).
 - `exploration_algorithm`: dataset source tag (`proto`, `rnd`, `aps`, etc.).
 - `--eval_tasks`: list of downstream tasks for zero-shot evaluation.
 
-### Examples
+**Example**
 ```bash
 # BREEZE on Quadruped with RND exploration data
 python main_offline.py breeze quadruped rnd \
@@ -78,10 +99,25 @@ python main_offline.py breeze quadruped rnd \
   --seed 42 --learning_steps 1000000
 ```
 
-Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are stored in `agents/<algo>/config.yaml`. Override any value via CLI flags or by editing the YAML.
+Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are stored in `agents/<algo>/config.yaml`. Override any value via CLI flags or edit the YAML.
+
+### Available algorithms
+
+| **Algorithm**                                                      | **Authors**                                                | **Type**               | **Command Line Argument** |
+|--------------------------------------------------------------------|------------------------------------------------------------|------------------------|----------------------------|
+| Breeze                                                             | [Zheng et al. (2025)]()                                    | Zero-shot RL           | `breeze`                   |
+| FB Representations                                                 | [Touati et al. (2023)](https://arxiv.org/abs/2209.14935)   | Zero-shot RL           | `fb`                       |
+| Conservative FB Representations (VCFB/MCFB)                        | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `cfb`                      |
+| Value-Conservative FB Representations (VCFB)                       | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `vcfb`                     |
+| Measure-Conservative FB Representations (MCFB)                     | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `mcfb`                     |
+| Conservative $Q$-learning                                          | [Kumar et al. (2020)](https://arxiv.org/abs/2006.04779)    | Single-task Offline RL | `cql`                      |
+| Soft Actor-Critic (SAC)                                            | [Haarnoja et al. (2018)](https://arxiv.org/abs/1812.05905) | Online RL              | `sac`                      |
+| Twin Delayed DDPG (TD3)                                            | [Fujimoto et al. (2018)](https://arxiv.org/abs/1802.09477) | Online RL              | `td3`                      |
+| Successor Features with Laplacian Eigenfunctions (SF-LAP)          | [Borsa et al. (2018)](https://arxiv.org/abs/1812.07626)    | Zero-shot RL           | `sf-lap`                   |
+| Successor Features with Hilbert foundation policy (SF-HILP)        | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`                  |
 
 ### Reproducing the Paper
-We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md) to reproduce our result.
+We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md).
 
 
 ## Acknowledgements
@@ -91,7 +127,7 @@ We thank all the contributions of prior studies:
 - The implementation of Diffusion model is based on [IDQL](https://arxiv.org/pdf/2304.10573)
 
 ## Citation
-If you find this repository helpful, please cite:
+If you find this repository helpful, please consider citing our paper:
 
 ```bibtex
 @inproceedings{zheng2025towards,
