@@ -3,15 +3,12 @@
 ## Towards Robust Zero-shot Reinforcement Learning (NeurIPS 2025)
 <a href="https://github.com/Whiterrrrr/BREEZE/blob/main/LICENSE"><img alt="License: MIT" src="https://black.readthedocs.io/en/stable/_static/license.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
- [![Paper](https://img.shields.io/badge/paper-arxiv-B31B1B.svg)](https://arxiv.org/)
+ [![Paper](https://img.shields.io/badge/arXiv-2510.15382-B31B1B.svg)](https://arxiv.org/abs/2510.15382)
   
 
 The is the official codebase for [Towards Robust Reinforcement Learning]() from [Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
 *Equal contribution
 
-<div align="center">
-<image src="img/method_illustration.png" width=80%>
-</div>
 
 ### Content
 - [Overview](#overview)
@@ -29,11 +26,11 @@ The is the official codebase for [Towards Robust Reinforcement Learning]() from 
 ### Performance
 BREEZE achieves the best or near-best returns with faster convergence and enhanced stability. 
 <div align="center">
-<image src="img/curves_quadruped_rnd.png" width=100%>
+<img src="img/curves_quadruped_rnd.png" width=100% alt="training curves for quadruped rnd">
 </div>
 BREEZE within 400k steps can match or exceed baselines trained for 1M steps.
 <div align="center">
-<image src="img/performance.png" width=80%>
+<img src="img/performance.png" width=80% alt="performance summary table">
 </div>
 
 ## Setup
@@ -58,17 +55,17 @@ Our repository includes a script to automatically download and reformat the data
 bash data_prepare.sh
 ```
 
-**Domains and tasks**
+**Domains and Tasks**
 
 | **Domain** | **Eval Tasks**                                                              | **Dimensionality** | **Type**      | **Reward** | **Command Line Argument** |
 |--------------|-----------------------------------------------------------------------------|--------------------|---------------|-----------|---------------------------|
 | Walker | `stand` `walk` `run` `flip`                                                 | Low                | Locomotion         | Dense     | `walker`                  |
-| Quadruped | `stand` `roll` `roll_fast` `jump` `escape`                                  | High               | Locomotion         | Dense     | `quadruped`               |
+| Quadruped | `stand` `walk` `run` `jump`                                  | High               | Locomotion         | Dense     | `quadruped`               |
 | Jaco | `reach_top_left` `reach_top_right` `reach_bottom_left` `reach_bottom_right` | High               | Goal-reaching      | Sparse    | `jaco`                     |
 
- **Dataset collecting algorithms**
+**Exploration Algorithms for Dataset Collection**
 
-| **Dataset Collecting Algorithm**                                                                     | **Command Line Argument** |
+| **Exploration Algorithm**                                                                     | **Command Line Argument** |
 |------------------------------------------------------------------------------------------------------|---------------------------|
  | [Random Network Distillation (RND)](https://arxiv.org/abs/1810.12894)                                | `rnd`                     |
  | [Diversity is All You Need (DIAYN)](https://arxiv.org/abs/1802.06070)                                | `diayn`                   |
@@ -107,22 +104,19 @@ Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are
 
 ### Available algorithms
 
-| **Algorithm**                                                      | **Authors**                                                | **Type**               | **Command Line Argument** |
-|--------------------------------------------------------------------|------------------------------------------------------------|------------------------|----------------------------|
-| Breeze                                                             | [Zheng et al. (2025)]()                                    | Zero-shot RL           | `breeze`                   |
-| FB Representations                                                 | [Touati et al. (2023)](https://arxiv.org/abs/2209.14935)   | Zero-shot RL           | `fb`                       |
-| Conservative FB Representations (VCFB/MCFB)                        | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `cfb`                      |
-| Value-Conservative FB Representations (VCFB)                       | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `vcfb`                     |
-| Measure-Conservative FB Representations (MCFB)                     | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `mcfb`                     |
-| Conservative $Q$-learning                                          | [Kumar et al. (2020)](https://arxiv.org/abs/2006.04779)    | Single-task Offline RL | `cql`                      |
-| Soft Actor-Critic (SAC)                                            | [Haarnoja et al. (2018)](https://arxiv.org/abs/1812.05905) | Online RL              | `sac`                      |
-| Twin Delayed DDPG (TD3)                                            | [Fujimoto et al. (2018)](https://arxiv.org/abs/1802.09477) | Online RL              | `td3`                      |
-| Successor Features with Laplacian Eigenfunctions (SF-LAP)          | [Borsa et al. (2018)](https://arxiv.org/abs/1812.07626)    | Zero-shot RL           | `sf-lap`                   |
-| Successor Features with Hilbert foundation policy (SF-HILP)        | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`                  |
+| **Algorithm**                                                    | **Authors**                                                | **Type**               | **Command Line Argument** |
+|------------------------------------------------------------------|------------------------------------------------------------|------------------------|---------------------------|
+| Breeze                                                           | [Zheng et al. (2025)]()                                    | Zero-shot RL           | `breeze`                  |
+| FB Representations                                               | [Touati et al. (2023)](https://arxiv.org/abs/2209.14935)   | Zero-shot RL           | `fb`                      |
+| Conservative FB Representations (VCFB/MCFB)                      | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `mcfb/vcfb`               |
+| Conservative Q-learning                                          | [Kumar et al. (2020)](https://arxiv.org/abs/2006.04779)    | Single-task Offline RL | `cql`                     |
+| Soft Actor-Critic (SAC)                                          | [Haarnoja et al. (2018)](https://arxiv.org/abs/1812.05905) | Online RL              | `sac`                     |
+| Twin Delayed DDPG (TD3)                                          | [Fujimoto et al. (2018)](https://arxiv.org/abs/1802.09477) | Online RL              | `td3`                     |
+| Successor Features with Laplacian Eigenfunctions (SF-LAP)        | [Borsa et al. (2018)](https://arxiv.org/abs/1812.07626)    | Zero-shot RL           | `sf-lap`                  |
+| Successor Features with Hilbert foundation policy (SF-HILP)      | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`                 |
 
 ### Reproducing the Paper
 We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md).
-
 
 ## Acknowledgements
 We thank all the contributions of prior studies:

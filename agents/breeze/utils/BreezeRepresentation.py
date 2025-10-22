@@ -4,7 +4,7 @@ from typing import Tuple
 from agents.utils import weight_init
 from agents.breeze.utils.base import (
     BackwardTransformer,
-    ForwardRepresentation2
+    AttentionForwardRepresentation
 )
 
 class AttentionBackwardRepresentation(torch.nn.Module):
@@ -57,7 +57,7 @@ class AttentionForwardBackwardRepresentation(torch.nn.Module):
     ):
         super().__init__()
 
-        self.forward_representation = ForwardRepresentation2(
+        self.forward_representation = AttentionForwardRepresentation(
             observation_length=observation_length,
             action_length=action_length,
             preprocessor_hidden_dimension=preprocessor_hidden_dimension,
@@ -77,7 +77,7 @@ class AttentionForwardBackwardRepresentation(torch.nn.Module):
             device=device,
         )
 
-        self.forward_representation_target = ForwardRepresentation2(
+        self.forward_representation_target = AttentionForwardRepresentation(
             observation_length=observation_length,
             action_length=action_length,
             preprocessor_hidden_dimension=preprocessor_hidden_dimension,

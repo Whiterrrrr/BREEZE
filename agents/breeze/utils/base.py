@@ -82,7 +82,7 @@ class FeedForward(nn.Module):
         return self.net(self.norm(x))
 
 
-class ForwardRepresentation2(nn.Module):
+class AttentionForwardRepresentation(nn.Module):
 
     def __init__(
         self,
