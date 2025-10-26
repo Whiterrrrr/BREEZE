@@ -44,30 +44,3 @@ def asymmetric_l2_loss(u: torch.Tensor, tau: torch.Tensor) -> torch.Tensor:
     Compute the asymmetric L2 tau loss of the gap between prediction and target u.
     """
     return torch.mean(torch.abs(tau - (u < 0).float()) * u**2)
-
-
-def sql_loss(M1_rand: torch.Tensor, M2_rand: torch.Tensor, O: torch.Tensor, alpha: int) -> torch.Tensor:
-    """
-    SQL loss from the paper "OFFLINE RL WITH NO OOD ACTIONS: IN-SAMPLE  LEARNING VIA IMPLICIT VALUE REGULARIZATION"
-    """
-    sp_term = (torch.min(M1_rand, M2_rand).detach() - O) / (2 * alpha) + 1.0
-    sp_weight = torch.where(sp_term > 0, torch.tensor(1.0), torch.tensor(0.0))
-    loss = (sp_weight * (sp_term**2) + O / alpha).mean()
-
-    return loss
-
-
-def eql_loss(M1_rand: torch.Tensor, M2_rand: torch.Tensor, O: torch.Tensor, alpha:int) -> torch.Tensor:
-    """
-    EQL loss from the paper "OFFLINE RL WITH NO OOD ACTIONS: IN-SAMPLE LEARNING VIA IMPLICIT VALUE REGULARIZATION"
-    """
-    sp_term = (torch.min(M1_rand, M2_rand).detach() - O) / alpha
-    sp_term = torch.minimum(sp_term, torch.tensor(5.0))
-    max_sp_term = torch.max(sp_term, dim=0).values
-    max_sp_term = torch.where(max_sp_term < -1.0, torch.tensor(-1.0), max_sp_term)
-    max_sp_term = max_sp_term.detach()
-    loss = (
-        torch.exp(sp_term - max_sp_term) + torch.exp(-max_sp_term) * O / alpha
-    ).mean()
-
-    return loss
