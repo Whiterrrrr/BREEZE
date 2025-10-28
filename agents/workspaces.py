@@ -19,6 +19,7 @@ from agents.base import AbstractWorkspace, OfflineReplayBuffer
 from agents.fb.replay_buffer import FBReplayBuffer, OnlineFBReplayBuffer
 from agents.sac.replay_buffer import SoftActorCriticReplayBuffer
 
+from agents.sf.agent import SF
 from agents.fb.agent import FB
 from agents.sac.agent import SAC
 from agents.cql.agent import CQL
@@ -267,7 +268,7 @@ class OfflineRLWorkspace(AbstractWorkspace):
         best_model_path = None
 
         # sample set transitions for z inference
-        if isinstance(agent, FB):
+        if isinstance(agent, (FB, SF)):
             if self.domain_name == "point_mass_maze":
                 self.goal_states = {}
                 for task, goal_state in point_mass_maze_goals.items():
@@ -339,7 +340,7 @@ class OfflineRLWorkspace(AbstractWorkspace):
             metrics: dict of metrics
         """
 
-        if isinstance(agent, FB):
+        if isinstance(agent, (FB, SF)):
             zs = {}
             if self.domain_name == "point_mass_maze":
                 for task, goal_state in self.goal_states.items():
@@ -362,6 +363,20 @@ class OfflineRLWorkspace(AbstractWorkspace):
                         action, _ = agent.act(
                             timestep.observation["observations"],
                             task=zs[task],
+                            step=None,
+                            sample=False,
+                        )
+                    elif isinstance(agent, SF):
+                        if self.domain_name != "point_mass_maze":
+                            z = zs[task]
+                        else:
+                            z = agent.infer_z_from_goal(
+                                observation=timestep.observation["observations"],
+                                goal_state=self.goal_states[task],
+                            )
+                        action, _ = agent.act(
+                            timestep.observation["observations"],
+                            task=z,
                             step=None,
                             sample=False,
                         )

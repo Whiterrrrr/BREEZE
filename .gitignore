@@ -6,3 +6,4 @@
 /datasets
 /wandb
 **/saved_models
+run.sh

@@ -384,7 +384,7 @@ class SF(AbstractAgent):
             metrics: dictionary of metrics for logging
         """
         std = schedule(self.std_dev_schedule, step)
-        action, log_prob = self.actor(
+        action, action_dist = self.actor(
             observation=observation,
             z=z,
             std=std,
@@ -407,6 +407,7 @@ class SF(AbstractAgent):
             == AbstractGaussianActor
         ):
             # add an entropy regularisation term
+            log_prob = action_dist.log_prob(action).sum(-1)
             actor_loss += 0.1 * log_prob  # NOTE: currently hand-coded weight!
             mean_log_prob = log_prob.mean().item()
         else:
@@ -470,6 +471,37 @@ class SF(AbstractAgent):
         else:
             z = torch.matmul(phi, self.inv_cov)
             z = math.sqrt(self._z_dimension) * torch.nn.functional.normalize(z, dim=1)
+
+        z = z.squeeze().cpu().numpy()
+
+        return z
+
+    def infer_z_from_goal(
+        self, observation: np.ndarray, goal_state: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Infers z w.r.t. a goal state and the current observation
+        Args:
+            observation: array of shape [observation_length]
+            goal_state: tensor of shape [observation_length]
+            step: current step in env
+        Returns:
+            z: tensor of shape [z_dimension]
+        """
+        obs = torch.as_tensor(
+            observation, dtype=torch.float32, device=self._device
+        ).unsqueeze(0)
+
+        with torch.no_grad():
+            obs = self.encoder(obs)
+            desired_goal = self.encoder(goal_state)
+
+        with torch.no_grad():
+            z_g = self.feature_net(desired_goal)
+            z_s = self.feature_net(obs)
+
+        z = z_g - z_s
+        z = math.sqrt(self._z_dimension) * torch.nn.functional.normalize(z, dim=1)
 
         z = z.squeeze().cpu().numpy()
 

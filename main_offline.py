@@ -113,7 +113,7 @@ reward_constructor = RewardFunctionConstructor(
     device=config["device"],
 )
 
-if config["algorithm"] in ("fb", "vcfb", "mcfb","breeze"):
+if config["algorithm"] in ("fb", "vcfb", "mcfb", "sf-lap", "breeze"):
     relabel = False
 else:
     relabel = True
@@ -429,9 +429,6 @@ elif config["algorithm"] == "sf-lap":
     if config["domain_name"] == "point_mass_maze":
         config["discount"] = 0.99
         config["z_dimension"] = 100
-
-    else:
-        raise ValueError(f"Unknown algorithm {config['algorithm']}")
 
     agent = SF(
         observation_length=observation_length,

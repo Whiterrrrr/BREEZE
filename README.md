@@ -114,7 +114,7 @@ Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are
 | Soft Actor-Critic (SAC)                                          | [Haarnoja et al. (2018)](https://arxiv.org/abs/1812.05905) | Online RL              | `sac`                     |
 | Twin Delayed DDPG (TD3)                                          | [Fujimoto et al. (2018)](https://arxiv.org/abs/1802.09477) | Online RL              | `td3`                     |
 | Successor Features with Laplacian Eigenfunctions (SF-LAP)        | [Borsa et al. (2018)](https://arxiv.org/abs/1812.07626)    | Zero-shot RL           | `sf-lap`                  |
-| Successor Features with Hilbert foundation policy (SF-HILP)      | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`                 |
+| Successor Features with Hilbert foundation policy (SF-HILP)      | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`(Code incoming)               |
 
 ### Reproducing the Paper
 We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md).
