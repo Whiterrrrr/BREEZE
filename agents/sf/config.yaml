@@ -7,6 +7,7 @@ eval_rollouts: 10  # how many rollouts to average over when evaluating
 
 # forward-backward
 name: "sf"
+project: "zero-shot"
 save: false
 preprocessor_hidden_dimension: 1024
 preprocessor_hidden_layers: 2
