@@ -20,7 +20,8 @@ class FBReplayBuffer(OfflineReplayBuffer):
         relabel: bool = False,
         task: str = None,
         action_condition: dict = None,
-        normalize:bool = False
+        normalize: bool = False,
+        kitchen: bool = False
     ):
         super().__init__(
             reward_constructor=reward_constructor,
@@ -31,7 +32,8 @@ class FBReplayBuffer(OfflineReplayBuffer):
             relabel=relabel,
             task=task,
             action_condition=action_condition,
-            normalize=normalize
+            normalize=normalize,
+            kitchen=kitchen
         )
         self.reward_constructor = reward_constructor
         self.normalize = normalize

@@ -13,6 +13,7 @@ from typing import Dict, List, Union, Optional
 from scipy import stats
 
 from rewards import RewardFunctionConstructor
+from rewards.kitchen_utils import kitchen_env_reset, kitchen_env_step
 from custom_dmc_tasks.point_mass_maze import GOALS as point_mass_maze_goals
 
 from agents.base import AbstractWorkspace, OfflineReplayBuffer
@@ -757,3 +758,181 @@ class FinetuningWorkspace(OfflineRLWorkspace):
         if self.wandb_logging:
             # save to wandb_logging
             run.finish()
+
+class OfflineKitchenWorkspace(AbstractWorkspace):
+    """
+    Trains/evals/rollouts an offline RL agent given
+    """
+
+    def __init__(
+        self,
+        env: RewardFunctionConstructor,
+        learning_steps: int,
+        model_dir: Path,
+        eval_frequency: int,
+        eval_rollouts: int,
+        wandb_logging: bool,
+        device: torch.device,
+        train_std: Optional[float] = None,
+        eval_std: Optional[float] = None,
+        save: bool = False,
+    ):
+        super().__init__(
+            env=env,
+            reward_functions=None,
+        )
+
+        self.eval_frequency = eval_frequency
+        self.eval_rollouts = eval_rollouts
+        self.model_dir = model_dir
+        self.learning_steps = learning_steps
+        self.train_std = train_std
+        self.eval_std = eval_std
+        self.wandb_logging = wandb_logging
+        self.device = device
+        self.save = save
+
+    def train(
+        self,
+        agent: Union[CQL, SAC, FB, CFB, BREEZE],
+        agent_config: Dict,
+        replay_buffer: FBReplayBuffer,
+    ) -> None:
+        """
+        Trains an offline RL algorithm on one task.
+        """
+        if self.wandb_logging:
+            run = wandb.init(
+                project=agent_config["project"],
+                config=agent_config,
+                name = agent_config["name"],
+                tags=[agent.name],
+                reinit=True,
+            )
+            if self.save:
+                model_path = self.model_dir / run.name / datetime.today().strftime("%Y-%m-%d-%H-%M-%S")
+                makedirs(str(model_path))
+
+        elif self.save:
+            date = datetime.today().strftime("Y-%m-%d-%H-%M-%S")
+            model_path = self.model_dir / f"local-run-{date}"
+            makedirs(str(model_path))
+
+        logger.info(f"Training {agent.name}.")
+        best_mean_task_reward = -np.inf
+        best_model_path = None
+
+
+        for i in tqdm(range(self.learning_steps + 1)):
+            
+            batch = replay_buffer.sample_kitchen(agent.batch_size)
+            train_metrics = agent.update(batch=batch, step=i)
+
+            eval_metrics = {}
+
+            if i % self.eval_frequency == 0:
+                randbatch_dataset = replay_buffer.sample_kitchen(agent.batch_size)
+                eval_metrics = self.eval(agent=agent, rand_states=randbatch_dataset.observations[0], buffer=replay_buffer)
+
+                if eval_metrics["eval/task_reward_iqm"] > best_mean_task_reward:
+                    logger.info(
+                        f"New max IQM task reward: {best_mean_task_reward:.3f} -> "
+                        f"{eval_metrics['eval/task_reward_iqm']:.3f}."
+                        f" Saving model."
+                    )
+
+                    if self.save:
+                        # delete current best model
+                        if best_model_path is not None:
+                            best_model_path.unlink(missing_ok=True)
+
+                        agent._name = i  # pylint: disable=protected-access
+                        # save locally
+                        best_model_path = agent.save(model_path)
+
+                    best_mean_task_reward = eval_metrics["eval/task_reward_iqm"]
+
+                agent.train()
+
+            metrics = {**train_metrics, **eval_metrics}
+
+            if self.wandb_logging:
+                run.log(metrics)
+
+        if self.wandb_logging:
+            if self.save:
+                # save to wandb_logging
+                run.save(best_model_path.as_posix(), base_path=model_path.as_posix())
+            run.finish()
+
+        # delete local models
+        if self.save:
+            shutil.rmtree(model_path)
+
+    def eval(
+        self,
+        agent: Union[CQL, SAC, FB, CFB, BREEZE],
+        buffer: FBReplayBuffer,
+        rand_states = None,
+    ) -> Dict[str, float]:
+        """
+        Performs eval rollouts.
+        Args:
+            agent: agent to evaluate
+            tasks: tasks to evaluate on
+        Returns:
+            metrics: dict of metrics
+        """
+
+        if isinstance(agent, FB):
+            agent.std_dev_schedule = self.eval_std
+
+        logger.info("Performing eval rollouts.")
+        eval_rewards = {}
+        agent.eval()
+        for _ in tqdm(range(self.eval_rollouts)):
+            reward_episode = 0
+            observation, obs_goal = kitchen_env_reset(self.env, rand_states)
+            done = False
+            step = 0
+
+            while not done:
+                with torch.no_grad():
+                    policy_obs = torch.from_numpy(observation).float()
+                    policy_goal = (torch.from_numpy(obs_goal).float().to(buffer.s_mean.device) - buffer.s_mean) / (buffer.s_std + 1e-5)
+                    z = agent.infer_z(policy_goal)
+                    action, _ = agent.act(
+                        policy_obs,
+                        task=z,
+                        step=None,
+                        sample=True,
+                    )
+
+                if len(action.shape) >1:
+                    action = action[0]
+
+                next_observation, reward, done, info = kitchen_env_step(self.env, action)
+                step += 1
+                reward_episode += reward
+                observation = next_observation
+
+            if 'return' not in eval_rewards:
+                eval_rewards['return'] = []
+                
+            eval_rewards['return'].append(info['episode']['return'])
+
+        # average over rollouts for metrics
+        metrics = {}
+        mean_task_performance = 0.0
+        for task, rewards in eval_rewards.items():
+            mean_task_reward = stats.trim_mean(rewards, 0.25)  # IQM
+            metrics[f"eval/{task}/episode_reward_iqm"] = mean_task_reward
+            mean_task_performance += mean_task_reward
+
+        # log mean task performance
+        metrics["eval/task_reward_iqm"] = mean_task_performance * 25
+
+        if isinstance(agent, FB):
+            agent.std_dev_schedule = self.train_std
+
+        return metrics

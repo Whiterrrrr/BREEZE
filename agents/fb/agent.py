@@ -445,10 +445,12 @@ class FB(AbstractAgent):
         Returns:
             z: tensor of shape [z_dimension,]
         """
-        if len(rewards.shape) == 1:
+        if rewards is not None and len(rewards.shape) == 1:
             rewards = rewards.unsqueeze(1)
             
         with torch.no_grad():
+            if len(observations.shape) == 1:
+                observations = observations.unsqueeze(0)
             z = self.FB.backward_representation(observations)
 
         if rewards is not None:

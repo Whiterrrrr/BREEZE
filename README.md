@@ -36,13 +36,13 @@ BREEZE within 400k steps can match or exceed baselines trained for 1M steps.
 
 ## Setup
 ### Requirements
-* Python 3.10
+* Python 3.9
 * [Mujoco](https://mujoco.org/) - required by the DM Control suite. Note: While our experiments used separate MuJoCo binaries, the latest mujoco pip package now includes them.
 * [Wandb](https://wandb.ai/site/) - for experiment tracking. Set `WANDB_API_KEY` before launching experiments or pass `--wandb_logging False`.
 
 Install dependencies
 ```bash
-conda create -n breeze python=3.10
+conda create -n breeze python=3.9
 conda activate breeze
 pip install -r requirements.txt
 ```

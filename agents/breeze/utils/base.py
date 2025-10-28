@@ -108,8 +108,8 @@ class AttentionForwardRepresentation(nn.Module):
             hidden_dimension=preprocessor_hidden_dimension,
             feature_space_dimension=preprocessor_feature_space_dimension,
             hidden_layers=preprocessor_hidden_layers,
-            device=device,
             activation=preprocessor_activation,
+            device=device,
         )
 
         self.obs_z_preprocessor = AbstractPreprocessor(
@@ -118,20 +118,22 @@ class AttentionForwardRepresentation(nn.Module):
             hidden_dimension=preprocessor_hidden_dimension,
             feature_space_dimension=preprocessor_feature_space_dimension,
             hidden_layers=preprocessor_hidden_layers,
-            device=device,
             activation=preprocessor_activation,
+            device=device,
         )
 
-        self.feedforward_1 = FeedForward(preprocessor_feature_space_dimension)
         self.self_attention_1 = SelfAttention(preprocessor_feature_space_dimension)
+        self.feedforward_1 = FeedForward(preprocessor_feature_space_dimension)
+        self.norm_1 = nn.LayerNorm(preprocessor_feature_space_dimension)
         self.linear_11 = nn.Linear(
             preprocessor_feature_space_dimension * 2, 
             forward_hidden_dimension
         )
         self.linear_12 = nn.Linear(forward_hidden_dimension, z_dimension)
         
-        self.feedforward_2 = FeedForward(preprocessor_feature_space_dimension)
         self.self_attention_2 = SelfAttention(preprocessor_feature_space_dimension)
+        self.feedforward_2 = FeedForward(preprocessor_feature_space_dimension)
+        self.norm_2 = nn.LayerNorm(preprocessor_feature_space_dimension)
         self.linear_21 = nn.Linear(
             preprocessor_feature_space_dimension * 2,
             forward_hidden_dimension
@@ -140,8 +142,8 @@ class AttentionForwardRepresentation(nn.Module):
         
         # Regularization components
         self.dropout = nn.Dropout(p=0.1)
-        self.layer_norm_1 = nn.LayerNorm(preprocessor_feature_space_dimension)
-        self.layer_norm_2 = nn.LayerNorm(preprocessor_feature_space_dimension)
+        self.final_norm_1 = nn.LayerNorm(preprocessor_feature_space_dimension)
+        self.final_norm_2 = nn.LayerNorm(preprocessor_feature_space_dimension)
 
         self.to(device)
 
@@ -181,13 +183,13 @@ class AttentionForwardRepresentation(nn.Module):
 
         # First processing block
         attended_1 = self.self_attention_1(combined_embeddings)
-        residual_1 = attended_1 + self.feedforward_1(attended_1)
-        normalized_1 = self.layer_norm_1(self.dropout(residual_1))
+        residual_1 = attended_1 + self.feedforward_1(self.norm_1(attended_1))
+        normalized_1 = self.final_norm_1(self.dropout(residual_1))
         
         # Second processing block  
         attended_2 = self.self_attention_2(normalized_1)
-        residual_2 = attended_2 + self.feedforward_2(attended_2)
-        normalized_2 = self.layer_norm_2(self.dropout(residual_2))
+        residual_2 = attended_2 + self.feedforward_2(self.norm_2(attended_2))
+        normalized_2 = self.final_norm_2(self.dropout(residual_2))
         
         # Flatten and project to output space
         flattened_features = normalized_2.flatten(start_dim=1)

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 from agents.utils import TruncatedNormal, squashed_gaussian, EPS
 from rewards import RewardFunctionConstructor
+import h5py
 
 class AbstractAgent(torch.nn.Module, metaclass=abc.ABCMeta):
     """Abstract base class for all agents."""
@@ -612,22 +613,27 @@ class OfflineReplayBuffer(AbstractOfflineReplayBuffer):
         relabel: bool = True,
         transitions: int = None,
         action_condition: dict = None,
-        normalize: bool = False
+        normalize: bool = False,
+        kitchen: bool = False
     ):
         super().__init__(device=device, transitions=transitions)
 
         self._discount = discount
         self.normalize = normalize
+        self.kitchen = kitchen
         self.storage = {}
 
         # load dataset on init
-        self.load_offline_dataset(
-            reward_constructor=reward_constructor,
-            dataset_path=dataset_path,
-            relabel=relabel,
-            task=task,
-            action_condition=action_condition,
-        )
+        if self.kitchen:
+            self.load_kitchen_dataset(dataset_path)
+        else:
+            self.load_offline_dataset(
+                reward_constructor=reward_constructor,
+                dataset_path=dataset_path,
+                relabel=relabel,
+                task=task,
+                action_condition=action_condition,
+            )
         
         self._init_stat()
         if self.normalize:
@@ -835,6 +841,80 @@ class OfflineReplayBuffer(AbstractOfflineReplayBuffer):
     def add(self, *args, **kwargs):
         pass
 
+    def load_kitchen_dataset(self, dataset_path):
+        with h5py.File(dataset_path, 'r') as data:
+            dataset_length = data['observations'].shape[0]
+            
+            rng = np.random.default_rng(42)
+            if self.transitions is None:
+                logger.info(
+                    f"Loading full dataset with {dataset_length} transitions"
+                )
+                sample_indices = np.arange(dataset_length)
+            else:
+                logger.info(
+                    f"Sampling {self.transitions} transitions from"
+                    f" dataset of length {dataset_length}"
+                )
+                sample_indices = rng.choice(
+                    dataset_length, 
+                    min(self.transitions, dataset_length), 
+                    replace=False
+                )
+            obs_indices = np.sort(sample_indices)[:-1]
+            self.storage["observations"] = torch.as_tensor(
+                data['observations'][obs_indices], 
+                device=self.device
+            )[:, :30]
+            self.storage["actions"] = torch.as_tensor(
+                data['actions'][obs_indices],
+                device=self.device
+            )
+            self.storage["rewards"] = torch.as_tensor(
+                data['rewards'][obs_indices],
+                device=self.device
+            )
+            
+            next_obs_indices = np.sort(sample_indices)[1:]
+            self.storage["next_observations"] = torch.as_tensor(
+                data['observations'][next_obs_indices],
+                device=self.device
+            )[:, :30]
+            self.storage["next_actions"] = torch.as_tensor(
+                data['actions'][next_obs_indices],
+                device=self.device
+            )
+            
+            self.storage["terminals"] = torch.as_tensor(
+                data['terminals'][obs_indices],
+                device=self.device
+            )
+            
+            self.storage["discounts"] = torch.ones_like(
+                self.storage["rewards"],
+                device=self.device
+            ) * self._discount
+            
+    def sample_kitchen(self, batch_size: int):
+        if len(self.storage["observations"]) == 0:
+            raise RuntimeError("The dataset is empty. Please load data first.")
+
+        batch_indices = torch.randint(
+            low=0,
+            high=len(self.storage["observations"]),
+            size=(batch_size,),
+            device=self.device
+        )
+
+        return Batch(
+            observations=self.storage["observations"][batch_indices],
+            actions=self.storage["actions"][batch_indices],
+            rewards=self.storage["rewards"][batch_indices],
+            next_observations=self.storage["next_observations"][batch_indices],
+            next_actions=self.storage['next_actions'][batch_indices],
+            discounts=self.storage["discounts"][batch_indices],
+        )   
+    
 
 class AbstractWorkspace(metaclass=abc.ABCMeta):
     """
