@@ -88,7 +88,7 @@ usage: main_offline.py <algorithm> <domain_name> <exploration_algorithm> \
                        [--wandb_logging {True,False}]
 ```
 
-- `algorithm`: one of `breeze`, `fb`, `cfb`, `vcfb`, `mcfb`, `cql`, `sac`, `td3`, `sf-lap`, `sf-hilp`(see table below).
+- `algorithm`: one of `breeze`, `fb`, `cfb`, `vcfb`, `mcfb`, `cql`, `sac`, `td3`, `sf-lap`(see table below).
 - `domain_name`: DMC domain (`walker`, `quadruped`, `jaco`, `point_mass_maze`, ...).
 - `exploration_algorithm`: dataset source tag (`proto`, `rnd`, `aps`, etc.).
 - `--eval_tasks`: list of downstream tasks for zero-shot evaluation.
@@ -114,7 +114,6 @@ Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are
 | Soft Actor-Critic (SAC)                                          | [Haarnoja et al. (2018)](https://arxiv.org/abs/1812.05905) | Online RL              | `sac`                     |
 | Twin Delayed DDPG (TD3)                                          | [Fujimoto et al. (2018)](https://arxiv.org/abs/1802.09477) | Online RL              | `td3`                     |
 | Successor Features with Laplacian Eigenfunctions (SF-LAP)        | [Borsa et al. (2018)](https://arxiv.org/abs/1812.07626)    | Zero-shot RL           | `sf-lap`                  |
-| Successor Features with Hilbert foundation policy (SF-HILP)      | [Park et al. (2024)](https://arxiv.org/pdf/2402.15567)     | Zero-shot RL           | `sf-hilp`(Code incoming)               |
 
 ### Reproducing the Paper
 We provide the domain-specific hyperparameters used in our experiments in [domain_specific_hyp.md](docs/domain_specific_hyp.md).
