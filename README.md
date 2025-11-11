@@ -3,11 +3,13 @@
 ## Towards Robust Zero-shot Reinforcement Learning (NeurIPS 2025)
 <a href="https://github.com/Whiterrrrr/BREEZE/blob/main/LICENSE"><img alt="License: MIT" src="https://black.readthedocs.io/en/stable/_static/license.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href="https://arwen-c.github.io/breeze/"><img alt="Project page" src="https://img.shields.io/badge/project%20page-https%3A%2F%2Farwen--c.github.io%2Fbreeze%2F-yellow.svg"></a>
+
+<!-- TODO: update project page later -->
+<!-- <a href="https://arwen-c.github.io/breeze/"><img alt="Project page" src="https://img.shields.io/badge/project%20page-https%3A%2F%2Farwen--c.github.io%2Fbreeze%2F-yellow.svg"></a> -->
  [![Paper](https://img.shields.io/badge/arXiv-2510.15382-B31B1B.svg)](https://arxiv.org/abs/2510.15382)
   
 
-The is the official codebase for [Towards Robust Reinforcement Learning](https://arxiv.org/abs/2510.15382) from [Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
+The is the official codebase for [Towards Robust Zero-shot Reinforcement Learning](https://arxiv.org/abs/2510.15382) from [Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
 *Equal contribution
 
 
