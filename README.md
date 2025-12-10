@@ -29,11 +29,11 @@ The is the official codebase for [Towards Robust Zero-shot Reinforcement Learnin
 ### Performance
 BREEZE achieves the best or near-best returns with faster convergence and enhanced stability. 
 <div align="center">
-<img src="img/curves_quadruped_rnd.png" width=100% alt="training curves for quadruped rnd">
+<img src="img/curves.png" width=100% alt="training curves for quadruped rnd">
 </div>
 BREEZE within 400k steps can match or exceed baselines trained for 1M steps.
 <div align="center">
-<img src="img/performance.png" width=80% alt="performance summary table">
+<img src="img/performance_table.png" width=80% alt="performance summary table">
 </div>
 
 ## Setup
