@@ -109,7 +109,7 @@ Configuration defaults (network sizes, optimizers, diffusion settings, etc.) are
 
 | **Algorithm**                                                    | **Authors**                                                | **Type**               | **Command Line Argument** |
 |------------------------------------------------------------------|------------------------------------------------------------|------------------------|---------------------------|
-| Breeze                                                           | [Zheng et al. (2025)]()                                    | Zero-shot RL           | `breeze`                  |
+| Breeze                                                           | [Zheng et al. (2025)](https://arxiv.org/abs/2510.15382)                                    | Zero-shot RL           | `breeze`                  |
 | FB Representations                                               | [Touati et al. (2023)](https://arxiv.org/abs/2209.14935)   | Zero-shot RL           | `fb`                      |
 | Conservative FB Representations (VCFB/MCFB)                      | [Jeen et al. (2024)](https://arxiv.org/abs/2309.15178)     | Zero-shot RL           | `mcfb/vcfb`               |
 | Conservative Q-learning                                          | [Kumar et al. (2020)](https://arxiv.org/abs/2006.04779)    | Single-task Offline RL | `cql`                     |
