@@ -133,7 +133,7 @@ If you find this repository helpful, please consider citing our paper:
 @inproceedings{zheng2025towards,
   title={Towards Robust Zero-Shot Reinforcement Learning},
   author={Kexin Zheng and Lauriane Teyssier and Yinan Zheng and Yu Luo and Xianyuan Zhan},
-  booktitle={NeurIPS},
+  booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
   year={2025}
 }
 ```
