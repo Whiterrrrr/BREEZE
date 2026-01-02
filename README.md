@@ -9,7 +9,7 @@
  [![Paper](https://img.shields.io/badge/arXiv-2510.15382-B31B1B.svg)](https://arxiv.org/abs/2510.15382)
   
 
-The is the official codebase for [Towards Robust Zero-shot Reinforcement Learning](https://arxiv.org/abs/2510.15382) from [Kexin Zheng](https://air-dream.netlify.app/author/kexin-zheng/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
+The is the official codebase for [Towards Robust Zero-shot Reinforcement Learning](https://arxiv.org/abs/2510.15382) from [Kexin Zheng](https://github.com/Whiterrrrr/)\*, [Lauriane Teyssier](https://arwen-c.github.io/)\*, [Yinan Zheng](https://github.com/ZhengYinan-AIR), Yu Luo, [Xianyuan Zhan](https://zhanzxy5.github.io/zhanxianyuan/)\
 *Equal contribution
 
 
